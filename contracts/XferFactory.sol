@@ -1,4 +1,4 @@
-//SPDX-License-Identifier: Unlicense
+//SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
 import "./interfaces/IAddressRegistry.sol";
@@ -30,7 +30,7 @@ contract XferFactory {
             bytes32(0),
             keccak256(abi.encodePacked(
                 type(XferToken).creationCode,
-                abi.encode(token)
+                abi.encode(token, address(addressRegistry))
             ))
         )))));
     }

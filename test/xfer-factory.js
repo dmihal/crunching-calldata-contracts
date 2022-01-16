@@ -102,4 +102,16 @@ describe("XferFactory", function () {
 
     expect(await token.balanceOf(RANDOM_ADDRESS)).to.equal(ethers.constants.WeiPerEther);
   });
+
+  it("should deploy a proxy contract to the determined address", async function () {
+    const XferFactory = await ethers.getContractFactory("XferFactory");
+    const factory = await XferFactory.deploy(ethers.constants.AddressZero);
+    await factory.deployed();
+
+    const expectedAddress = await factory.calculateTokenContract(RANDOM_ADDRESS);
+
+    await expect(factory.createTokenContract(RANDOM_ADDRESS))
+      .to.emit(factory, 'NewToken')
+      .withArgs(RANDOM_ADDRESS, expectedAddress);
+  })
 });
