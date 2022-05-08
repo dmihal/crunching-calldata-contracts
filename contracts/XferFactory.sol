@@ -1,12 +1,12 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "./interfaces/IAddressRegistry.sol";
+import "./interfaces/IArbAddressTable.sol";
 import "./interfaces/IERC20.sol";
 import './XferToken.sol';
 
 contract XferFactory {
-    IAddressRegistry public immutable addressRegistry;
+    IArbAddressTable public immutable addressRegistry;
 
     event NewToken(address token, address xfer);
 
@@ -15,7 +15,7 @@ contract XferFactory {
     error AddressNotFound();
 
     constructor(address _registry) {
-        addressRegistry = IAddressRegistry(_registry);
+        addressRegistry = IArbAddressTable(_registry);
     }
 
     function createTokenContract(address token) public {
@@ -51,11 +51,11 @@ contract XferFactory {
         address to;
         uint256 offset;
         if (msg.data.length < 41) {
-            uint256 tokenId = uint16(bytes2(msg.data[:2]));
-            uint256 toId = uint16(bytes2(msg.data[2:4]));
-            token = addressRegistry.getAddress(tokenId);
-            to = addressRegistry.getAddress(toId);
-            offset = 4;
+            uint256 tokenId = uint24(bytes3(msg.data[:3]));
+            uint256 toId = uint24(bytes3(msg.data[3:6]));
+            token = addressRegistry.lookupIndex(tokenId);
+            to = addressRegistry.lookupIndex(toId);
+            offset = 6;
         } else {
             token = address(bytes20(msg.data[:20]));
             to = address(bytes20(msg.data[20:40]));

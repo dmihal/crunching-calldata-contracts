@@ -1,19 +1,19 @@
 //SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "./interfaces/IAddressRegistry.sol";
+import "./interfaces/IArbAddressTable.sol";
 import "./interfaces/IERC20.sol";
 
 contract XferToken {
     IERC20 public immutable token;
-    IAddressRegistry public immutable addressRegistry;
+    IArbAddressTable public immutable addressRegistry;
 
     error TooShort();
     error TooLong();
 
     constructor(address _token, address _registry) {
         token = IERC20(_token);
-        addressRegistry = IAddressRegistry(_registry);
+        addressRegistry = IArbAddressTable(_registry);
     }
 
     fallback() external {
@@ -27,9 +27,9 @@ contract XferToken {
         address to;
         uint256 offset;
         if (msg.data.length < 21) {
-            uint256 toId = uint16(bytes2(msg.data[:2]));
-            to = addressRegistry.getAddress(toId);
-            offset = 2;
+            uint256 toId = uint24(bytes3(msg.data[:3]));
+            to = addressRegistry.lookupIndex(toId);
+            offset = 3;
         } else {
             to = address(bytes20(msg.data[:20]));
             offset = 20;
